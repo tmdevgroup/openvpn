@@ -1,5 +1,5 @@
 # openvpn
-curl -O https://raw.githubusercontent.com/tmdevgroup/openvpn/master/openvpn-install.sh
+curl -O https://raw.githubusercontent.com/tmdevgroup/openvpn/main/openvpn-install.sh
 
 chmod +x openvpn-install.sh
 
