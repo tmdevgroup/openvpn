@@ -273,7 +273,7 @@ function installQuestions() {
 	done
 	echo ""
 	echo "What port do you want OpenVPN to listen to?"
-	echo "   1) Default: 1194"
+	echo "   1) Default: 443"
 	echo "   2) Custom"
 	echo "   3) Random [49152-65535]"
 	until [[ $PORT_CHOICE =~ ^[1-3]$ ]]; do
@@ -281,7 +281,7 @@ function installQuestions() {
 	done
 	case $PORT_CHOICE in
 	1)
-		PORT="1194"
+		PORT="443"
 		;;
 	2)
 		until [[ $PORT =~ ^[0-9]+$ ]] && [ "$PORT" -ge 1 ] && [ "$PORT" -le 65535 ]; do
@@ -391,13 +391,13 @@ function installQuestions() {
 	done
 	if [[ $CUSTOMIZE_ENC == "n" ]]; then
 		# Use default, sane and fast parameters
-		CIPHER="AES-128-GCM"
-		CERT_TYPE="1" # ECDSA
-		CERT_CURVE="prime256v1"
-		CC_CIPHER="TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256"
+		CIPHER="AES-192-GCM"
+		CERT_TYPE="2" # ECDSA
+		RSA_KEY_SIZE="4096"
+		CC_CIPHER="TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384"
 		DH_TYPE="1" # ECDH
-		DH_CURVE="prime256v1"
-		HMAC_ALG="SHA256"
+		DH_CURVE="secp384r1"
+		HMAC_ALG="SHA384"
 		TLS_SIG="1" # tls-crypt
 	else
 		echo ""
