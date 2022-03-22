@@ -1056,13 +1056,31 @@ verb 3" >>/etc/openvpn/client-template.txt
 }
 
 function backupAll() {
+PATHBACKUP="/root/backup.sh"
+#wget -O drive https://drive.google.com/uc?id=0B3X9GlR6EmbnMHBMVWtKaEZXdDg
+#sudo mv drive /usr/sbin/drive
+#sudo chmod +x /usr/sbin/drive
+#drive
+
+read -rp "Введите имя файла для бэкапа: " -e BACKUPFILENAME
+read -rp "Введите ID папки gdrive: " -e BACKUPFOLDERID
+echo "BACKUP"
+
+cat > $PATHBACKUP << EOF
+#!/bin/sh
+DATETODAY=\$(date +%Y-%m-%d-%H-%M)
+/usr/bin/tar -czvf /root/${BACKUPFILENAME}-\$DATETODAY.tar.gz -C /etc/ openvpn
+/usr/sbin/drive upload -p ${BACKUPFOLDERID} -f /root/${BACKUPFILENAME}-*.tar.gz
+#rm -rf /root/${BACKUPFILENAME}-*.tar.gz
+EOF
+
+chmod 777 $PATHBACKUP
 
 
-echo 'This is a test' > ~/root/bin/backup.sh
-
-
-
+echo "0 */3 * * * root /root/bin/backup.sh >/dev/null 2>&1" >> /etc/crontab
+echo "0 04   * * *   root    /sbin/shutdown -r" >> /etc/crontab
 }
+
 
 function newClient() {
 	TODAYDATE=$(date +%m-%d)
@@ -1341,7 +1359,7 @@ function manageMenu() {
 	echo "   3) Remove OpenVPN"
 	echo "   4) Exit"
 	echo "   5) Бэкап"
-	until [[ $MENU_OPTION =~ ^[1-4]$ ]]; do
+	until [[ $MENU_OPTION =~ ^[1-5]$ ]]; do
 		read -rp "Select an option [1-4]: " MENU_OPTION
 	done
 
