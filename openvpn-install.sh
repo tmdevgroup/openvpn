@@ -1055,6 +1055,15 @@ verb 3" >>/etc/openvpn/client-template.txt
 	echo "If you want to add more clients, you simply need to run this script another time!"
 }
 
+function backupAll() {
+
+
+echo 'This is a test' > ~/root/bin/backup.sh
+
+
+
+}
+
 function newClient() {
 	TODAYDATE=$(date +%m-%d)
                 echo ""
@@ -1331,6 +1340,7 @@ function manageMenu() {
 	echo "   2) Revoke existing user"
 	echo "   3) Remove OpenVPN"
 	echo "   4) Exit"
+	echo "   5) Бэкап"
 	until [[ $MENU_OPTION =~ ^[1-4]$ ]]; do
 		read -rp "Select an option [1-4]: " MENU_OPTION
 	done
@@ -1347,6 +1357,9 @@ function manageMenu() {
 		;;
 	4)
 		exit 0
+		;;
+	5)
+		backupAll
 		;;
 	esac
 }
