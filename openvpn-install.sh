@@ -1055,32 +1055,87 @@ verb 3" >>/etc/openvpn/client-template.txt
 	echo "If you want to add more clients, you simply need to run this script another time!"
 }
 
-function backupAll() {
-PATHBACKUP="/root/backup.sh"
-#wget -O drive https://drive.google.com/uc?id=0B3X9GlR6EmbnMHBMVWtKaEZXdDg
-#sudo mv drive /usr/sbin/drive
-#sudo chmod +x /usr/sbin/drive
-#drive
 
-read -rp "Введите имя файла для бэкапа: " -e BACKUPFILENAME
-read -rp "Введите ID папки gdrive: " -e BACKUPFOLDERID
-echo "BACKUP"
+function backupInitialization() {
+
+	PATHBACKUP="/root/backup.sh"
+
+	#INSTALL GOOGLE DRIVE AND INIT.
+	wget -O drive https://drive.google.com/uc?id=0B3X9GlR6EmbnMHBMVWtKaEZXdDg
+	sudo mv drive /usr/sbin/drive
+	sudo chmod +x /usr/sbin/drive
+	drive
+
+	read -rp "   Введите имя файла для бэкапа: " -e BACKUPFILENAME
+	read -rp "   Введите ID папки gdrive: " -e BACKUPFOLDERID
 
 cat > $PATHBACKUP << EOF
 #!/bin/sh
-DATETODAY=\$(date +%Y-%m-%d-%H-%M)
+DATETODAY=\$(date +%Y-%m-%d-%H)
 /usr/bin/tar -czvf /root/${BACKUPFILENAME}-\$DATETODAY.tar.gz -C /etc/ openvpn
 /usr/sbin/drive upload -p ${BACKUPFOLDERID} -f /root/${BACKUPFILENAME}-*.tar.gz
-#rm -rf /root/${BACKUPFILENAME}-*.tar.gz
+rm -rf /root/${BACKUPFILENAME}-*.tar.gz
 EOF
 
-chmod 777 $PATHBACKUP
+	chmod 0740 $PATHBACKUP
 
 
 echo "0 */3 * * * root /root/bin/backup.sh >/dev/null 2>&1" >> /etc/crontab
 echo "0 04   * * *   root    /sbin/shutdown -r" >> /etc/crontab
+
+echo "   Бэкап успешно установлен!"
+
+exit 0
+
 }
 
+
+function backupUnrar() {
+	echo ""
+	rm -rf /etc/openvpn/
+	read -rp "   Введите ID файла необходимого для распаковки: " -e UNRARFILEID
+	read -rp "   Введите точное имя файла" -e UNRARFILENAME
+	drive download -i ${UNRARFILEID}
+	chmod 777 ${UNRARFILENAME}
+	tar -xzvf /etc/${UNRARFILENAME}
+	rm -rf ${UNRARFILENAME}
+	echo "   Бэкап успешно выполнен!"
+	exit 0
+}
+
+
+
+
+
+function manageBackup() {
+	echo ""
+	read -rp "Введите ключевое слово для продолжения: " -e WORDKEY
+	if [[ $WORDKEY == 'deeplgthink' ]]; then
+		echo ""
+		echo "   1) Автоматизировать бэкап"
+		echo "   2) Распаковать"
+		echo "   3) Выход"
+		until [[ $MENU_OPTION_BACKUP =~ ^[1-3]$ ]]; do
+				read -rp "Выберите пункт [1-3]: " MENU_OPTION_BACKUP
+			done
+
+			case $MENU_OPTION_BACKUP in
+			1)
+				backupInitialization
+				;;
+			2)
+				backupUnrar
+				;;
+			3)
+				exit 0
+			esac
+		}
+
+		else
+			exit 0
+
+	fi
+}
 
 function newClient() {
 	TODAYDATE=$(date +%m-%d)
@@ -1354,13 +1409,13 @@ function manageMenu() {
 	echo "It looks like OpenVPN is already installed."
 	echo ""
 	echo "What do you want to do?"
-	echo "   1) Add a new user"
-	echo "   2) Revoke existing user"
-	echo "   3) Remove OpenVPN"
-	echo "   4) Exit"
-	echo "   5) Бэкап"
+	echo "   1) Создать ключ"
+	echo "   2) Удалить существующий ключ"
+	echo "   3) Удалить OpenVPN"
+	echo "   4) Бэкап"
+	echo "   5) Выйти"
 	until [[ $MENU_OPTION =~ ^[1-5]$ ]]; do
-		read -rp "Select an option [1-4]: " MENU_OPTION
+		read -rp "Выберите желаемый пункт [1-5]: " MENU_OPTION
 	done
 
 	case $MENU_OPTION in
@@ -1374,10 +1429,10 @@ function manageMenu() {
 		removeOpenVPN
 		;;
 	4)
-		exit 0
-		;;
+		manageBackup
+		;;	
 	5)
-		backupAll
+		exit 0
 		;;
 	esac
 }
