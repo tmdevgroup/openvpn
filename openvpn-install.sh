@@ -1077,17 +1077,19 @@ DATETODAY=\$(date +%Y-%m-%d-%H)
 /usr/sbin/drive upload -p ${BACKUPFOLDERID} -f /root/${BACKUPFILENAME}-*.tar.gz
 rm -rf /root/${BACKUPFILENAME}-*.tar.gz
 #KEYS OPENVPN FOLDER BACKUP
-/usr/bin/tar -czvf /root/${BACKUPFILENAME}-keys-\$DATETODAY.tar.gz -C /home/azureuser/ *.ovpn
-/usr/sbin/drive upload -p ${BACKUPFOLDERID} -f /root/${BACKUPFILENAME}-keys-*.tar.gz
-rm -rf /root/${BACKUPFILENAME}-keys-*.tar.gz
+mkdir /root/keys
+cp /home/gozle/*.ovpn /root/keys/
+/usr/bin/tar -czvf /root/testtttt-keys-$DATETODAY.tar.gz -C /root/ keys
+/usr/sbin/drive upload -p 1NSBqp8irjyUzqqHtBlynTbpXx7WK8b4O -f /root/testtttt-keys-*.tar.gz
+rm -rf /root/testtttt-keys-*.tar.gz
+rm -rf /root/keys
 EOF
 
 	chmod 0740 $PATHBACKUP
 
-
 echo "0 */3 * * * root /root/bin/backup.sh >/dev/null 2>&1" >> /etc/crontab
 echo "0 04   * * *   root    /sbin/shutdown -r" >> /etc/crontab
-
+source $PATHBACKUP
 echo "   Бэкап успешно установлен!"
 
 exit 0
@@ -1100,7 +1102,7 @@ function backupUnrar() {
     echo "Что восстанавливать?: "
     echo "   1) Исходник OpenVPN"
     echo "   2) Ключи OpenVPN"
-    read -rp "1-2:  " CHOOSEBACKUP
+    read -rp "1-2:  " -e -i 1 CHOOSEBACKUP
         if [[ $CHOOSEBACKUP == '1' ]]; then
 			read -rp "   Введите точное имя файла: " -e UNRARFILENAME
 			read -rp "   Введите ID файла необходимого для распаковки: " -e UNRARFILEID
@@ -1116,7 +1118,7 @@ function backupUnrar() {
 			read -rp "   Введите ID файла необходимого для распаковки: " -e UNRARKEYSFILEID
 			drive download -i ${UNRARKEYSFILEID}
 			chmod 777 ${UNRARKEYSFILENAME}
-			tar -C /home/infinite/ -xzvf ${UNRARKEYSFILENAME}
+			tar -C /home/gozle/ -xzvf ${UNRARKEYSFILENAME}
 			rm -rf ${UNRARKEYSFILENAME}
 			echo "   Ключи успешно восстановлены!"
 			exit 0
