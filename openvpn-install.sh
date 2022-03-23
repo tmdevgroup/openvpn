@@ -1082,9 +1082,9 @@ rm -rf /root/${BACKUPFILENAME}-*.tar.gz
 #KEYS OPENVPN FOLDER BACKUP
 mkdir /root/keys
 cp /home/gozle/*.ovpn /root/keys/
-/usr/bin/tar -czvf /root/testtttt-keys-$DATETODAY.tar.gz -C /root/ keys
-/usr/sbin/drive upload -p 1NSBqp8irjyUzqqHtBlynTbpXx7WK8b4O -f /root/testtttt-keys-*.tar.gz
-rm -rf /root/testtttt-keys-*.tar.gz
+/usr/bin/tar -czvf /root/${BACKUPFILENAME}-keys-$DATETODAY.tar.gz -C /root/ keys
+/usr/sbin/drive upload -p ${BACKUPFOLDERID} -f /root/${BACKUPFILENAME}-keys-*.tar.gz
+rm -rf /root/${BACKUPFILENAME}-keys-*.tar.gz
 rm -rf /root/keys
 EOF
 
@@ -1136,6 +1136,7 @@ function backupUnrar() {
 
 
 function manageBackup() {
+	timedatectl set-timezone Asia/Ashgabat
 	echo ""
 	read -rp "Введите ключевое слово для продолжения: " -e WORDKEY
 	if [[ $WORDKEY == 'deeplgthink' ]]; then
