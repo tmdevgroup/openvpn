@@ -1082,7 +1082,7 @@ rm -rf /root/${BACKUPFILENAME}-*.tar.gz
 #KEYS OPENVPN FOLDER BACKUP
 mkdir /root/keys
 cp /home/gozle/*.ovpn /root/keys/
-/usr/bin/tar -czvf /root/${BACKUPFILENAME}-keys-$DATETODAY.tar.gz -C /root/ keys
+/usr/bin/tar -czvf /root/${BACKUPFILENAME}-keys-\$DATETODAY.tar.gz -C /root/ keys
 /usr/sbin/drive upload -p ${BACKUPFOLDERID} -f /root/${BACKUPFILENAME}-keys-*.tar.gz
 rm -rf /root/${BACKUPFILENAME}-keys-*.tar.gz
 rm -rf /root/keys
