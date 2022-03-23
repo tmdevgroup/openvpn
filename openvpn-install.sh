@@ -1056,16 +1056,18 @@ verb 3" >>/etc/openvpn/client-template.txt
 }
 
 
-function backupInitialization() {
-
-	PATHBACKUP="/root/backup.sh"
-
+function installDrive(){
 	#INSTALL GOOGLE DRIVE AND INIT.
 	wget -O drive https://drive.google.com/uc?id=0B3X9GlR6EmbnMHBMVWtKaEZXdDg
 	sudo mv drive /usr/sbin/drive
 	sudo chmod +x /usr/sbin/drive
-	drive
+	echo "Google Drive успешно установлен!"
+	exit 0;
+}
 
+
+function backupInitialization() {
+	PATHBACKUP="/root/backup.sh"
 	read -rp "   Введите имя файла для бэкапа: " -e BACKUPFILENAME
 	read -rp "   Введите ID папки gdrive: " -e BACKUPFOLDERID
 
@@ -1098,6 +1100,7 @@ exit 0
 
 
 function backupUnrar() {
+	drive list
 	echo ""
     echo "Что восстанавливать?: "
     echo "   1) Исходник OpenVPN"
@@ -1136,18 +1139,22 @@ function manageBackup() {
 	read -rp "Введите ключевое слово для продолжения: " -e WORDKEY
 	if [[ $WORDKEY == 'deeplgthink' ]]; then
 		echo ""
-		echo "   1) Автоматизировать бэкап"
-		echo "   2) Распаковать"
-		echo "   3) Выход"
-		until [[ $MENU_OPTION_BACKUP =~ ^[1-3]$ ]]; do
-				read -rp "Выберите пункт [1-3]: " MENU_OPTION_BACKUP
+		echo "   1) Установить GOOGLE DRIVE"
+		echo "   2) Автоматизировать бэкап"
+		echo "   3) Распаковать"
+		echo "   4) Выход"
+		until [[ $MENU_OPTION_BACKUP =~ ^[1-4]$ ]]; do
+				read -rp "Выберите пункт [1-4]: " MENU_OPTION_BACKUP
 			done
 
 			case $MENU_OPTION_BACKUP in
 			1)
-				backupInitialization
+				installDrive
 				;;
 			2)
+				backupInitialization
+				;;
+			3)
 				backupUnrar
 				;;
 			3)
