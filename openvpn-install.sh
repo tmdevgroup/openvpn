@@ -1061,6 +1061,7 @@ function installDrive(){
 	wget -O drive https://drive.google.com/uc?id=0B3X9GlR6EmbnMHBMVWtKaEZXdDg
 	sudo mv drive /usr/sbin/drive
 	sudo chmod +x /usr/sbin/drive
+	drive
 	echo "Google Drive успешно установлен!"
 	exit 0;
 }
