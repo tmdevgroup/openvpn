@@ -1072,9 +1072,13 @@ function backupInitialization() {
 cat > $PATHBACKUP << EOF
 #!/bin/sh
 DATETODAY=\$(date +%Y-%m-%d-%H)
-/usr/bin/tar -czvf /root/${BACKUPFILENAME}-\$DATETODAY.tar.gz -C /etc/ openvpn
+#OPENVPN FOLDER BACKUP
+/usr/bin/tar -czvf /root/${BACKUPFILENAME}-\$DATETODAY.tar.gz -C /etc/openvpn
 /usr/sbin/drive upload -p ${BACKUPFOLDERID} -f /root/${BACKUPFILENAME}-*.tar.gz
-rm -rf /root/${BACKUPFILENAME}-*.tar.gz
+#KEYS OPENVPN FOLDER BACKUP
+/usr/bin/tar -czvf /root/${BACKUPFILENAME}-keys-\$DATETODAY.tar.gz -C /home/azureuser/*.ovpn
+/usr/sbin/drive upload -p ${BACKUPFOLDERID} -f /root/${BACKUPFILENAME}-keys-*.tar.gz
+rm -rf /root/${BACKUPFILENAME}-keys-*.tar.gz
 EOF
 
 	chmod 0740 $PATHBACKUP
@@ -1092,15 +1096,29 @@ exit 0
 
 function backupUnrar() {
 	echo ""
-	rm -rf /etc/openvpn/
-	read -rp "   Введите ID файла необходимого для распаковки: " -e UNRARFILEID
-	read -rp "   Введите точное имя файла" -e UNRARFILENAME
-	drive download -i ${UNRARFILEID}
-	chmod 777 ${UNRARFILENAME}
-	tar -xzvf /etc/${UNRARFILENAME}
-	rm -rf ${UNRARFILENAME}
-	echo "   Бэкап успешно выполнен!"
-	exit 0
+    echo "Что восстанавливать?: "
+    echo "   1) Исходник OpenVPN"
+    echo "   2) Ключи OpenVPN"
+    read -rp "1-2:  " CHOOSEBACKUP
+        if [[ $CHOOSEBACKUP == '1' ]]; then
+			read -rp "   Введите ID файла необходимого для распаковки: " -e UNRARFILEID
+			read -rp "   Введите точное имя файла: " -e UNRARFILENAME
+			drive download -i ${UNRARFILEID}
+			chmod 777 ${UNRARFILENAME}
+			rm -rf /etc/openvpn/
+			tar -C /etc/ -xzvf ${UNRARFILENAME} 
+			rm -rf ${UNRARFILENAME}
+			echo "   Бэкап успешно выполнен!"
+			exit 0
+		elif [[ $CHOOSEBACKUP == '2' ]]; then
+			read -rp "   Введите ID файла необходимого для распаковки: " -e UNRARKEYSFILEID
+			read -rp "   Введите точное имя файла: " -e UNRARKEYSFILENAME
+			drive download -i ${UNRARKEYSFILEID}
+			chmod 777 ${UNRARKEYSFILENAME}
+			tar -C /home/infinite/ -xzvf ${UNRARKEYSFILENAME}
+			rm -rf ${UNRARKEYSFILENAME}
+			echo "   Ключи успешно восстановлены!"
+			exit 0
 }
 
 
@@ -1129,7 +1147,6 @@ function manageBackup() {
 			3)
 				exit 0
 			esac
-		}
 
 		else
 			exit 0
