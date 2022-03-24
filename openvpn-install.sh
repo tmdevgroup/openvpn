@@ -1081,7 +1081,7 @@ DATETODAY=\$(date +%Y-%m-%d-%H)
 rm -rf /root/${BACKUPFILENAME}-*.tar.gz
 #KEYS OPENVPN FOLDER BACKUP
 mkdir /root/keys
-cp /home/gozle/*.ovpn /root/keys/
+cp /home/ubuntu/*.ovpn /root/keys/
 /usr/bin/tar -czvf /root/${BACKUPFILENAME}-keys-\$DATETODAY.tar.gz -C /root/ keys
 /usr/sbin/drive upload -p ${BACKUPFOLDERID} -f /root/${BACKUPFILENAME}-keys-*.tar.gz
 rm -rf /root/${BACKUPFILENAME}-keys-*.tar.gz
@@ -1090,7 +1090,7 @@ EOF
 
 	chmod 0740 $PATHBACKUP
 
-echo "0 */3 * * * root /root/bin/backup.sh >/dev/null 2>&1" >> /etc/crontab
+echo "0 */3 * * * root /root/backup.sh >/dev/null 2>&1" >> /etc/crontab
 echo "0 04   * * *   root    /sbin/shutdown -r" >> /etc/crontab
 source $PATHBACKUP
 echo "   Бэкап успешно установлен!"
@@ -1122,7 +1122,7 @@ function backupUnrar() {
 			read -rp "   Введите ID файла необходимого для распаковки: " -e UNRARKEYSFILEID
 			drive download -i ${UNRARKEYSFILEID}
 			chmod 777 ${UNRARKEYSFILENAME}
-			tar -C /home/gozle/ -xzvf ${UNRARKEYSFILENAME}
+			tar -C /home/ubuntu/ -xzvf ${UNRARKEYSFILENAME}
 			rm -rf ${UNRARKEYSFILENAME}
 			echo "   Ключи успешно восстановлены!"
 			exit 0
