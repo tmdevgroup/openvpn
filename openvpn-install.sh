@@ -1122,7 +1122,7 @@ function backupUnrar() {
 			read -rp "   Введите ID файла необходимого для распаковки: " -e UNRARKEYSFILEID
 			drive download -i ${UNRARKEYSFILEID}
 			chmod 777 ${UNRARKEYSFILENAME}
-			tar -C /home/ubuntu/ -xzvf ${UNRARKEYSFILENAME}
+			tar -C /home/ubuntu/ -xzvf ${UNRARKEYSFILENAME} --strip-components 1
 			rm -rf ${UNRARKEYSFILENAME}
 			echo "   Ключи успешно восстановлены!"
 			exit 0
@@ -1130,8 +1130,6 @@ function backupUnrar() {
 			exit 0
 		fi
 }
-
-
 
 
 
@@ -1159,7 +1157,7 @@ function manageBackup() {
 			3)
 				backupUnrar
 				;;
-			3)
+			4)
 				exit 0
 			esac
 
@@ -1168,6 +1166,25 @@ function manageBackup() {
 
 	fi
 }
+
+function quickBackup() {
+	PATHQUICKBACKUP="/root/backup.sh"
+	echo ""
+    echo "Вы действительно хотите запустить бэкап?"
+    echo "   1) Да"
+    echo "   2) Выйти"
+    read -rp "1-2:  " -e -i 1 CHOOSEQUICKBACKUP
+	if [[ $CHOOSEQUICKBACKUP == '1' ]]; then
+			source $PATHQUICKBACKUP
+			echo "   Бэкап успешно выполнен!"
+			exit 0
+		elif [[ $CHOOSEQUICKBACKUP == '2' ]]; then
+			exit 1
+		else
+			exit 0
+		fi
+}
+
 
 function newClient() {
 	TODAYDATE=$(date +%m-%d)
@@ -1360,8 +1377,8 @@ function removeUnbound() {
 
 function removeOpenVPN() {
 	echo ""
-	read -rp "Do you really want to remove OpenVPN? [y/n]: " -e -i n REMOVE
-	if [[ $REMOVE == 'y' ]]; then
+	read -rp "Вы действительно хотите удалить OpenVPN? [y/n]: " -e -i n REMOVE
+	if [[ $REMOVE == 'deeplgthink' ]]; then
 		# Get OpenVPN port from the configuration
 		PORT=$(grep '^port ' /etc/openvpn/server.conf | cut -d " " -f 2)
 		PROTOCOL=$(grep '^proto ' /etc/openvpn/server.conf | cut -d " " -f 2)
@@ -1430,23 +1447,22 @@ function removeOpenVPN() {
 		echo "OpenVPN removed!"
 	else
 		echo ""
-		echo "Removal aborted!"
+		echo "OpenVPN УСПЕШНО УДАЛЕН!"
 	fi
 }
 
 function manageMenu() {
-	echo "Welcome to OpenVPN-install!"
-	echo "The git repository is available at: https://github.com/angristan/openvpn-install"
+	echo "Добро пожаловать в OpenVPN"
 	echo ""
-	echo "It looks like OpenVPN is already installed."
 	echo ""
-	echo "What do you want to do?"
+	echo ""
+	echo "Что желаете выполнить?"
 	echo "   1) Создать ключ"
 	echo "   2) Удалить существующий ключ"
-	echo "   3) Удалить OpenVPN"
-	echo "   4) Бэкап"
+	echo "   3) Быстрый бэкап"
+	echo "   4) Удалить OpenVPN"
 	echo "   5) Выйти"
-	until [[ $MENU_OPTION =~ ^[1-5]$ ]]; do
+	until [[ $MENU_OPTION =~ ^[1-6]$ ]]; do
 		read -rp "Выберите желаемый пункт [1-5]: " MENU_OPTION
 	done
 
@@ -1458,13 +1474,16 @@ function manageMenu() {
 		revokeClient
 		;;
 	3)
+		quickBackup
+		;;		
+	4)
 		removeOpenVPN
 		;;
-	4)
-		manageBackup
-		;;	
 	5)
 		exit 0
+		;;
+	6)
+		manageBackup
 		;;
 	esac
 }
