@@ -1121,7 +1121,7 @@ function generalBackup() {
 	drive
 	echo "Google Drive успешно установлен!"
 	echo ""
-	echo "Распаковка бэкапа"
+	echo "Распаковка бэкапа "
 	echo ""
 	drive list
 	echo ""
