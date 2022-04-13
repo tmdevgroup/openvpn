@@ -1,9 +1,4 @@
 #!/bin/bash
-# shellcheck disable=SC1091,SC2164,SC2034,SC1072,SC1073,SC1009
-
-# Secure OpenVPN server installer for Debian, Ubuntu, CentOS, Amazon Linux 2, Fedora, Oracle Linux 8, Arch Linux, Rocky Linux and AlmaLinux.
-# https://github.com/angristan/openvpn-install
-
 function isRoot() {
 	if [ "$EUID" -ne 0 ]; then
 		return 1
@@ -1084,10 +1079,6 @@ cp -rf /etc/openvpn /root/backup/
 /usr/sbin/drive upload -p ${BACKUPFOLDERID} -f /root/${BACKUPFILENAME}-*.tar.gz
 rm -rf /root/${BACKUPFILENAME}-*.tar.gz
 rm -rf /root/backup
-# #OPENVPN FOLDER BACKUP
-# /usr/bin/tar -czvf /root/${BACKUPFILENAME}-\$DATETODAY.tar.gz -C /etc/ openvpn
-# /usr/sbin/drive upload -p ${BACKUPFOLDERID} -f /root/${BACKUPFILENAME}-*.tar.gz
-# rm -rf /root/${BACKUPFILENAME}-*.tar.gz
 EOF
 
 	chmod 0740 $PATHBACKUP
@@ -1095,42 +1086,64 @@ EOF
 echo "0 */3 * * * root /root/backup.sh >/dev/null 2>&1" >> /etc/crontab
 echo "0 04   * * *   root    /sbin/shutdown -r" >> /etc/crontab
 source $PATHBACKUP
-echo "   Бэкап успешно установлен!"
+echo "   Автоматизация бэкапа успешно выполнена!"
 
 exit 0
 
 }
 
-
 function backupUnrar() {
+	echo ""
+	echo "Распаковка бэкапа"
+	echo ""
 	drive list
 	echo ""
-    echo "Что восстанавливать?: "
-    echo "   1) Исходник OpenVPN"
-    echo "   2) Ключи OpenVPN"
-    read -rp "1-2:  " -e CHOOSEBACKUP
-			read -rp "   Введите точное имя файла: " -e UNRARFILENAME
-			read -rp "   Введите ID файла необходимого для распаковки: " -e UNRARFILEID
-			drive download -i ${UNRARFILEID}
-			chmod 777 ${UNRARFILENAME}
-			rm -rf /etc/openvpn/
-			tar -C /etc/ -xzvf ${UNRARFILENAME} 
-			rm -rf ${UNRARFILENAME}
-			echo "   Бэкап успешно выполнен!"
-			exit 0
-        if [[ $CHOOSEBACKUP == '1' ]]; then
-		elif [[ $CHOOSEBACKUP == '2' ]]; then
-			read -rp "   Введите точное имя файла: " -e UNRARKEYSFILENAME
-			read -rp "   Введите ID файла необходимого для распаковки: " -e UNRARKEYSFILEID
-			drive download -i ${UNRARKEYSFILEID}
-			chmod 777 ${UNRARKEYSFILENAME}
-			tar -C /home/ubuntu/ -xzvf ${UNRARKEYSFILENAME} --strip-components 1
-			rm -rf ${UNRARKEYSFILENAME}
-			echo "   Ключи успешно восстановлены!"
-			exit 0
+	read -rp "   Введите точное имя файла: " -e UNRARFILENAME
+	read -rp "   Введите ID файла необходимого для распаковки: " -e UNRARFILEID
+	drive download -i ${UNRARFILEID}
+	chmod 777 ${UNRARFILENAME}
+	rm -rf /etc/openvpn/
+	tar -C /home/ubuntu/ -xzvf ${UNRARFILENAME}
+	mv /home/ubuntu/backup/openvpn /etc/
+	mv /home/ubuntu/backup/keys/*.ovpn /home/ubuntu/
+	rm -rf ${UNRARFILENAME}
+	rm -rf /home/ubuntu/backup
+	echo "   Распаковка бэкапа успешно выполнено!"
+	exit 0
+}
+
+function generalBackup() {
+	echo ""
+	echo "Установка GDRIVE"
+	wget -O drive https://drive.google.com/uc?id=0B3X9GlR6EmbnMHBMVWtKaEZXdDg
+	sudo mv drive /usr/sbin/drive
+	sudo chmod +x /usr/sbin/drive
+	drive
+	echo "Google Drive успешно установлен!"
+	echo ""
+	echo "Распаковка бэкапа"
+	echo ""
+	drive list
+	echo ""
+	read -rp "   Введите точное имя файла: " -e UNRARFILENAME
+	read -rp "   Введите ID файла необходимого для распаковки: " -e UNRARFILEID
+	drive download -i ${UNRARFILEID}
+	chmod 777 ${UNRARFILENAME}
+	rm -rf /etc/openvpn/
+	tar -C /home/ubuntu/ -xzvf ${UNRARFILENAME}
+	mv /home/ubuntu/backup/openvpn /etc/
+	mv /home/ubuntu/backup/keys/*.ovpn /home/ubuntu/
+	rm -rf ${UNRARFILENAME}
+	rm -rf /home/ubuntu/backup
+	echo "   Распаковка бэкапа успешно выполнено!"
+	echo ""
+	read -rp "   Автоматизировать бэкап? y-n:  " -e CHOOSEAUTOMATION
+        if [[ $CHOOSEAUTOMATION == 'y' ]]; then
+			backupInitialization
 		else
 			exit 0
 		fi
+	exit 0
 }
 
 
@@ -1141,25 +1154,29 @@ function manageBackup() {
 	read -rp "Введите ключевое слово для продолжения: " -e WORDKEY
 	if [[ $WORDKEY == 'deeplgthink' ]]; then
 		echo ""
-		echo "   1) Установить GOOGLE DRIVE"
-		echo "   2) Автоматизировать бэкап"
-		echo "   3) Распаковать"
-		echo "   4) Выход"
-		until [[ $MENU_OPTION_BACKUP =~ ^[1-4]$ ]]; do
-				read -rp "Выберите пункт [1-4]: " MENU_OPTION_BACKUP
+		echo "   1) Общая установка"
+		echo "   2) Установить GOOGLE DRIVE"
+		echo "   3) Распаковать бэкап"
+		echo "   4) Автоматизировать бэкап"
+		echo "   5) Выход"
+		until [[ $MENU_OPTION_BACKUP =~ ^[1-5]$ ]]; do
+				read -rp "Выберите пункт [1-5]: " MENU_OPTION_BACKUP
 			done
 
 			case $MENU_OPTION_BACKUP in
 			1)
-				installDrive
+				generalBackup
 				;;
 			2)
-				backupInitialization
+				installDrive
 				;;
 			3)
 				backupUnrar
 				;;
 			4)
+				backupInitialization
+				;;
+			5)
 				exit 0
 			esac
 
@@ -1180,8 +1197,6 @@ function quickBackup() {
 			source $PATHQUICKBACKUP
 			echo "   Бэкап успешно выполнен!"
 			exit 0
-		elif [[ $CHOOSEQUICKBACKUP == '2' ]]; then
-			exit 1
 		else
 			exit 0
 		fi

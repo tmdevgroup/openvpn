@@ -2,9 +2,9 @@
 
 
 ```bash
-sudo curl -O https://raw.githubusercontent.com/tmdevgroup/openvpn/main/openvpn-install.sh
-sudo chmod +x openvpn-install.sh
+sudo curl -O https://raw.githubusercontent.com/tmdevgroup/ov/main/ov.sh
+sudo chmod +x ov.sh
 ```
 ```sh
-sudo ./openvpn-install.sh
+sudo ./ov.sh
 ```
