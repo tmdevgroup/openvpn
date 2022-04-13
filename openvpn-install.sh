@@ -1074,18 +1074,20 @@ function backupInitialization() {
 
 cat > $PATHBACKUP << EOF
 #!/bin/sh
-DATETODAY=\$(date +%Y-%m-%d-%H)
+DATETODAY=\$(date +%m-%d-%H)
 #KEYS OPENVPN FOLDER BACKUP
-mkdir /root/keys
-cp /home/ubuntu/*.ovpn /root/keys/
-/usr/bin/tar -czvf /root/${BACKUPFILENAME}-keys-\$DATETODAY.tar.gz -C /root/ keys
-/usr/sbin/drive upload -p ${BACKUPFOLDERID} -f /root/${BACKUPFILENAME}-keys-*.tar.gz
-rm -rf /root/${BACKUPFILENAME}-keys-*.tar.gz
-rm -rf /root/keys
-#OPENVPN FOLDER BACKUP
-/usr/bin/tar -czvf /root/${BACKUPFILENAME}-\$DATETODAY.tar.gz -C /etc/ openvpn
+mkdir /root/backup
+mkdir /root/backup/keys
+cp /home/ubuntu/*.ovpn /root/backup/keys/
+cp -rf /etc/openvpn /root/backup/
+/usr/bin/tar -czvf /root/${BACKUPFILENAME}-\$DATETODAY.tar.gz -C /root/ backup
 /usr/sbin/drive upload -p ${BACKUPFOLDERID} -f /root/${BACKUPFILENAME}-*.tar.gz
 rm -rf /root/${BACKUPFILENAME}-*.tar.gz
+rm -rf /root/backup
+# #OPENVPN FOLDER BACKUP
+# /usr/bin/tar -czvf /root/${BACKUPFILENAME}-\$DATETODAY.tar.gz -C /etc/ openvpn
+# /usr/sbin/drive upload -p ${BACKUPFOLDERID} -f /root/${BACKUPFILENAME}-*.tar.gz
+# rm -rf /root/${BACKUPFILENAME}-*.tar.gz
 EOF
 
 	chmod 0740 $PATHBACKUP
@@ -1107,7 +1109,6 @@ function backupUnrar() {
     echo "   1) Исходник OpenVPN"
     echo "   2) Ключи OpenVPN"
     read -rp "1-2:  " -e CHOOSEBACKUP
-        if [[ $CHOOSEBACKUP == '1' ]]; then
 			read -rp "   Введите точное имя файла: " -e UNRARFILENAME
 			read -rp "   Введите ID файла необходимого для распаковки: " -e UNRARFILEID
 			drive download -i ${UNRARFILEID}
@@ -1117,6 +1118,7 @@ function backupUnrar() {
 			rm -rf ${UNRARFILENAME}
 			echo "   Бэкап успешно выполнен!"
 			exit 0
+        if [[ $CHOOSEBACKUP == '1' ]]; then
 		elif [[ $CHOOSEBACKUP == '2' ]]; then
 			read -rp "   Введите точное имя файла: " -e UNRARKEYSFILENAME
 			read -rp "   Введите ID файла необходимого для распаковки: " -e UNRARKEYSFILEID
