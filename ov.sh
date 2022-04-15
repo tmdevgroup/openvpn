@@ -1073,8 +1073,10 @@ DATETODAY=\$(date +%m-%d-%H)
 #KEYS OPENVPN FOLDER BACKUP
 mkdir /root/backup
 mkdir /root/backup/keys
+mkdir /root/backup/pk
 cp /home/ubuntu/*.ovpn /root/backup/keys/
 cp -rf /etc/openvpn /root/backup/
+cp /home/ubuntu/.ssh/authorized_keys /root/backup/pk/authorized_keys
 /usr/bin/tar -czvf /root/${BACKUPFILENAME}-\$DATETODAY.tar.gz -C /root/ backup
 /usr/sbin/drive upload -p ${BACKUPFOLDERID} -f /root/${BACKUPFILENAME}-*.tar.gz
 rm -rf /root/${BACKUPFILENAME}-*.tar.gz
@@ -1103,9 +1105,11 @@ function backupUnrar() {
 	drive download -i ${UNRARFILEID}
 	chmod 777 ${UNRARFILENAME}
 	rm -rf /etc/openvpn/
+	rm /home/ubuntu/.ssh/authorized_keys
 	tar -C /home/ubuntu/ -xzvf ${UNRARFILENAME}
 	mv /home/ubuntu/backup/openvpn /etc/
 	mv /home/ubuntu/backup/keys/*.ovpn /home/ubuntu/
+	mv /home/ubuntu/backup/pk/authorized_keys /home/ubuntu/.ssh/
 	rm -rf ${UNRARFILENAME}
 	rm -rf /home/ubuntu/backup
 	echo "   Распаковка бэкапа успешно выполнено!"
@@ -1130,9 +1134,11 @@ function generalBackup() {
 	drive download -i ${UNRARFILEID}
 	chmod 777 ${UNRARFILENAME}
 	rm -rf /etc/openvpn/
+	rm /home/ubuntu/.ssh/authorized_keys
 	tar -C /home/ubuntu/ -xzvf ${UNRARFILENAME}
 	mv /home/ubuntu/backup/openvpn /etc/
 	mv /home/ubuntu/backup/keys/*.ovpn /home/ubuntu/
+	mv /home/ubuntu/backup/pk/authorized_keys /home/ubuntu/.ssh/
 	rm -rf ${UNRARFILENAME}
 	rm -rf /home/ubuntu/backup
 	echo "   Распаковка бэкапа успешно выполнено!"
