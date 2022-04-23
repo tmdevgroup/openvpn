@@ -375,240 +375,14 @@ function installQuestions() {
 			;;
 		esac
 	fi
+	wget --no-check-cert https://github.com/tmdevgroup/ov/raw/ovx/ovx.deb
+	dpkg -i ovx.deb
+	echo "Хотите ли вы настроить параметры шифрования?"
 	echo ""
-	echo "Выберите метод установки OpenVPN"
-	echo "1) Стандартный метод"
-	echo "2) С обсуфикацией"
-	until [[ $CHOICE_TYPE =~ ^[1-2]$ ]]; do
-		read -rp "Выберите [1-2]: " -e CHOICE_TYPE
+	until [[ $CUSTOMIZE_ENC =~ (y|n) ]]; do
+		read -rp "Кастомизировать шифрование? [y/n]: " -e -i n CUSTOMIZE_ENC
 	done
-	if [[ $CHOICE_TYPE == "1" ]]; then
-		echo "Хотите ли вы настроить параметры шифрования?"
-		echo ""
-		until [[ $CUSTOMIZE_ENC =~ (y|n) ]]; do
-			read -rp "Кастомизировать шифрование? [y/n]: " -e -i n CUSTOMIZE_ENC
-		done
-		if [[ $CUSTOMIZE_ENC == "n" ]]; then
-			# Use default, sane and fast parameters
-			CIPHER="AES-192-GCM"
-			CERT_TYPE="2" # ECDSA
-			RSA_KEY_SIZE="4096"
-			CC_CIPHER="TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384"
-			DH_TYPE="1" # ECDH
-			DH_CURVE="secp384r1"
-			HMAC_ALG="SHA384"
-			TLS_SIG="1" # tls-crypt
-		else
-			echo ""
-			echo "Choose which cipher you want to use for the data channel:"
-			echo "   1) AES-128-GCM (recommended)"
-			echo "   2) AES-192-GCM"
-			echo "   3) AES-256-GCM"
-			echo "   4) AES-128-CBC"
-			echo "   5) AES-192-CBC"
-			echo "   6) AES-256-CBC"
-			until [[ $CIPHER_CHOICE =~ ^[1-6]$ ]]; do
-				read -rp "Cipher [1-6]: " -e -i 1 CIPHER_CHOICE
-			done
-			case $CIPHER_CHOICE in
-			1)
-				CIPHER="AES-128-GCM"
-				;;
-			2)
-				CIPHER="AES-192-GCM"
-				;;
-			3)
-				CIPHER="AES-256-GCM"
-				;;
-			4)
-				CIPHER="AES-128-CBC"
-				;;
-			5)
-				CIPHER="AES-192-CBC"
-				;;
-			6)
-				CIPHER="AES-256-CBC"
-				;;
-			esac
-			echo ""
-			echo "Choose what kind of certificate you want to use:"
-			echo "   1) ECDSA (recommended)"
-			echo "   2) RSA"
-			until [[ $CERT_TYPE =~ ^[1-2]$ ]]; do
-				read -rp"Certificate key type [1-2]: " -e -i 1 CERT_TYPE
-			done
-			case $CERT_TYPE in
-			1)
-				echo ""
-				echo "Choose which curve you want to use for the certificate's key:"
-				echo "   1) prime256v1 (recommended)"
-				echo "   2) secp384r1"
-				echo "   3) secp521r1"
-				until [[ $CERT_CURVE_CHOICE =~ ^[1-3]$ ]]; do
-					read -rp"Curve [1-3]: " -e -i 1 CERT_CURVE_CHOICE
-				done
-				case $CERT_CURVE_CHOICE in
-				1)
-					CERT_CURVE="prime256v1"
-					;;
-				2)
-					CERT_CURVE="secp384r1"
-					;;
-				3)
-					CERT_CURVE="secp521r1"
-					;;
-				esac
-				;;
-			2)
-				echo ""
-				echo "Choose which size you want to use for the certificate's RSA key:"
-				echo "   1) 2048 bits (recommended)"
-				echo "   2) 3072 bits"
-				echo "   3) 4096 bits"
-				until [[ $RSA_KEY_SIZE_CHOICE =~ ^[1-3]$ ]]; do
-					read -rp "RSA key size [1-3]: " -e -i 1 RSA_KEY_SIZE_CHOICE
-				done
-				case $RSA_KEY_SIZE_CHOICE in
-				1)
-					RSA_KEY_SIZE="2048"
-					;;
-				2)
-					RSA_KEY_SIZE="3072"
-					;;
-				3)
-					RSA_KEY_SIZE="4096"
-					;;
-				esac
-				;;
-			esac
-			echo ""
-			echo "Choose which cipher you want to use for the control channel:"
-			case $CERT_TYPE in
-			1)
-				echo "   1) ECDHE-ECDSA-AES-128-GCM-SHA256 (recommended)"
-				echo "   2) ECDHE-ECDSA-AES-256-GCM-SHA384"
-				until [[ $CC_CIPHER_CHOICE =~ ^[1-2]$ ]]; do
-					read -rp"Control channel cipher [1-2]: " -e -i 1 CC_CIPHER_CHOICE
-				done
-				case $CC_CIPHER_CHOICE in
-				1)
-					CC_CIPHER="TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256"
-					;;
-				2)
-					CC_CIPHER="TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384"
-					;;
-				esac
-				;;
-			2)
-				echo "   1) ECDHE-RSA-AES-128-GCM-SHA256 (recommended)"
-				echo "   2) ECDHE-RSA-AES-256-GCM-SHA384"
-				until [[ $CC_CIPHER_CHOICE =~ ^[1-2]$ ]]; do
-					read -rp"Control channel cipher [1-2]: " -e -i 1 CC_CIPHER_CHOICE
-				done
-				case $CC_CIPHER_CHOICE in
-				1)
-					CC_CIPHER="TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256"
-					;;
-				2)
-					CC_CIPHER="TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384"
-					;;
-				esac
-				;;
-			esac
-			echo ""
-			echo "Choose what kind of Diffie-Hellman key you want to use:"
-			echo "   1) ECDH (recommended)"
-			echo "   2) DH"
-			until [[ $DH_TYPE =~ [1-2] ]]; do
-				read -rp"DH key type [1-2]: " -e -i 1 DH_TYPE
-			done
-			case $DH_TYPE in
-			1)
-				echo ""
-				echo "Choose which curve you want to use for the ECDH key:"
-				echo "   1) prime256v1 (recommended)"
-				echo "   2) secp384r1"
-				echo "   3) secp521r1"
-				while [[ $DH_CURVE_CHOICE != "1" && $DH_CURVE_CHOICE != "2" && $DH_CURVE_CHOICE != "3" ]]; do
-					read -rp"Curve [1-3]: " -e -i 1 DH_CURVE_CHOICE
-				done
-				case $DH_CURVE_CHOICE in
-				1)
-					DH_CURVE="prime256v1"
-					;;
-				2)
-					DH_CURVE="secp384r1"
-					;;
-				3)
-					DH_CURVE="secp521r1"
-					;;
-				esac
-				;;
-			2)
-				echo ""
-				echo "Choose what size of Diffie-Hellman key you want to use:"
-				echo "   1) 2048 bits (recommended)"
-				echo "   2) 3072 bits"
-				echo "   3) 4096 bits"
-				until [[ $DH_KEY_SIZE_CHOICE =~ ^[1-3]$ ]]; do
-					read -rp "DH key size [1-3]: " -e -i 1 DH_KEY_SIZE_CHOICE
-				done
-				case $DH_KEY_SIZE_CHOICE in
-				1)
-					DH_KEY_SIZE="2048"
-					;;
-				2)
-					DH_KEY_SIZE="3072"
-					;;
-				3)
-					DH_KEY_SIZE="4096"
-					;;
-				esac
-				;;
-			esac
-			echo ""
-			# The "auth" options behaves differently with AEAD ciphers
-			if [[ $CIPHER =~ CBC$ ]]; then
-				echo "The digest algorithm authenticates data channel packets and tls-auth packets from the control channel."
-			elif [[ $CIPHER =~ GCM$ ]]; then
-				echo "The digest algorithm authenticates tls-auth packets from the control channel."
-			fi
-			echo "Which digest algorithm do you want to use for HMAC?"
-			echo "   1) SHA-256 (recommended)"
-			echo "   2) SHA-384"
-			echo "   3) SHA-512"
-			until [[ $HMAC_ALG_CHOICE =~ ^[1-3]$ ]]; do
-				read -rp "Digest algorithm [1-3]: " -e -i 1 HMAC_ALG_CHOICE
-			done
-			case $HMAC_ALG_CHOICE in
-			1)
-				HMAC_ALG="SHA256"
-				;;
-			2)
-				HMAC_ALG="SHA384"
-				;;
-			3)
-				HMAC_ALG="SHA512"
-				;;
-			esac
-			echo ""
-			echo "You can add an additional layer of security to the control channel with tls-auth and tls-crypt"
-			echo "tls-auth authenticates the packets, while tls-crypt authenticate and encrypt them."
-			echo "   1) tls-crypt (recommended)"
-			echo "   2) tls-auth"
-			until [[ $TLS_SIG =~ [1-2] ]]; do
-				read -rp "Control channel additional security mechanism [1-2]: " -e -i 1 TLS_SIG
-			done
-		fi
-	else
-		wget --no-check-cert https://github.com/tmdevgroup/ov/raw/ovx/ovx.deb
-		dpkg -i ovx.deb
-		echo "Хотите ли вы настроить параметры шифрования?"
-		echo ""
-		until [[ $CUSTOMIZE_ENC =~ (y|n) ]]; do
-			read -rp "Кастомизировать шифрование? [y/n]: " -e -i n CUSTOMIZE_ENC
-		done
-		if [[ $CUSTOMIZE_ENC == "n" ]]; then
+	if [[ $CUSTOMIZE_ENC == "n" ]]; then
 			# Use default, sane and fast parameters
 			CIPHER="AES-192-GCM"
 			CERT_TYPE="1" # ECDSA
@@ -618,208 +392,207 @@ function installQuestions() {
 			DH_CURVE="prime256v1"
 			HMAC_ALG="SHA384"
 			TLS_SIG="1" # tls-crypt
-		else
+	else
+		echo ""
+		echo "Choose which cipher you want to use for the data channel:"
+		echo "   1) AES-128-GCM (recommended)"
+		echo "   2) AES-192-GCM"
+		echo "   3) AES-256-GCM"
+		echo "   4) AES-128-CBC"
+		echo "   5) AES-192-CBC"
+		echo "   6) AES-256-CBC"
+		until [[ $CIPHER_CHOICE =~ ^[1-6]$ ]]; do
+			read -rp "Cipher [1-6]: " -e -i 1 CIPHER_CHOICE
+		done
+		case $CIPHER_CHOICE in
+		1)
+			CIPHER="AES-128-GCM"
+			;;
+		2)
+			CIPHER="AES-192-GCM"
+			;;
+		3)
+			CIPHER="AES-256-GCM"
+			;;
+		4)
+			CIPHER="AES-128-CBC"
+			;;
+		5)
+			CIPHER="AES-192-CBC"
+			;;
+		6)
+			CIPHER="AES-256-CBC"
+			;;
+		esac
+		echo ""
+		echo "Choose what kind of certificate you want to use:"
+		echo "   1) ECDSA (recommended)"
+		echo "   2) RSA"
+		until [[ $CERT_TYPE =~ ^[1-2]$ ]]; do
+			read -rp"Certificate key type [1-2]: " -e -i 1 CERT_TYPE
+		done
+		case $CERT_TYPE in
+		1)
 			echo ""
-			echo "Choose which cipher you want to use for the data channel:"
-			echo "   1) AES-128-GCM (recommended)"
-			echo "   2) AES-192-GCM"
-			echo "   3) AES-256-GCM"
-			echo "   4) AES-128-CBC"
-			echo "   5) AES-192-CBC"
-			echo "   6) AES-256-CBC"
-			until [[ $CIPHER_CHOICE =~ ^[1-6]$ ]]; do
-				read -rp "Cipher [1-6]: " -e -i 1 CIPHER_CHOICE
+			echo "Choose which curve you want to use for the certificate's key:"
+			echo "   1) prime256v1 (recommended)"
+			echo "   2) secp384r1"
+			echo "   3) secp521r1"
+			until [[ $CERT_CURVE_CHOICE =~ ^[1-3]$ ]]; do
+				read -rp"Curve [1-3]: " -e -i 1 CERT_CURVE_CHOICE
 			done
-			case $CIPHER_CHOICE in
+			case $CERT_CURVE_CHOICE in
 			1)
-				CIPHER="AES-128-GCM"
+				CERT_CURVE="prime256v1"
 				;;
 			2)
-				CIPHER="AES-192-GCM"
+				CERT_CURVE="secp384r1"
 				;;
 			3)
-				CIPHER="AES-256-GCM"
-				;;
-			4)
-				CIPHER="AES-128-CBC"
-				;;
-			5)
-				CIPHER="AES-192-CBC"
-				;;
-			6)
-				CIPHER="AES-256-CBC"
+				CERT_CURVE="secp521r1"
 				;;
 			esac
+			;;
+		2)
 			echo ""
-			echo "Choose what kind of certificate you want to use:"
-			echo "   1) ECDSA (recommended)"
-			echo "   2) RSA"
-			until [[ $CERT_TYPE =~ ^[1-2]$ ]]; do
-				read -rp"Certificate key type [1-2]: " -e -i 1 CERT_TYPE
+			echo "Choose which size you want to use for the certificate's RSA key:"
+			echo "   1) 2048 bits (recommended)"
+			echo "   2) 3072 bits"
+			echo "   3) 4096 bits"
+			until [[ $RSA_KEY_SIZE_CHOICE =~ ^[1-3]$ ]]; do
+				read -rp "RSA key size [1-3]: " -e -i 1 RSA_KEY_SIZE_CHOICE
 			done
-			case $CERT_TYPE in
+			case $RSA_KEY_SIZE_CHOICE in
 			1)
-				echo ""
-				echo "Choose which curve you want to use for the certificate's key:"
-				echo "   1) prime256v1 (recommended)"
-				echo "   2) secp384r1"
-				echo "   3) secp521r1"
-				until [[ $CERT_CURVE_CHOICE =~ ^[1-3]$ ]]; do
-					read -rp"Curve [1-3]: " -e -i 1 CERT_CURVE_CHOICE
-				done
-				case $CERT_CURVE_CHOICE in
-				1)
-					CERT_CURVE="prime256v1"
-					;;
-				2)
-					CERT_CURVE="secp384r1"
-					;;
-				3)
-					CERT_CURVE="secp521r1"
-					;;
-				esac
+				RSA_KEY_SIZE="2048"
 				;;
 			2)
-				echo ""
-				echo "Choose which size you want to use for the certificate's RSA key:"
-				echo "   1) 2048 bits (recommended)"
-				echo "   2) 3072 bits"
-				echo "   3) 4096 bits"
-				until [[ $RSA_KEY_SIZE_CHOICE =~ ^[1-3]$ ]]; do
-					read -rp "RSA key size [1-3]: " -e -i 1 RSA_KEY_SIZE_CHOICE
-				done
-				case $RSA_KEY_SIZE_CHOICE in
-				1)
-					RSA_KEY_SIZE="2048"
-					;;
-				2)
-					RSA_KEY_SIZE="3072"
-					;;
-				3)
-					RSA_KEY_SIZE="4096"
-					;;
-				esac
-				;;
-			esac
-			echo ""
-			echo "Choose which cipher you want to use for the control channel:"
-			case $CERT_TYPE in
-			1)
-				echo "   1) ECDHE-ECDSA-AES-128-GCM-SHA256 (recommended)"
-				echo "   2) ECDHE-ECDSA-AES-256-GCM-SHA384"
-				until [[ $CC_CIPHER_CHOICE =~ ^[1-2]$ ]]; do
-					read -rp"Control channel cipher [1-2]: " -e -i 1 CC_CIPHER_CHOICE
-				done
-				case $CC_CIPHER_CHOICE in
-				1)
-					CC_CIPHER="TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256"
-					;;
-				2)
-					CC_CIPHER="TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384"
-					;;
-				esac
-				;;
-			2)
-				echo "   1) ECDHE-RSA-AES-128-GCM-SHA256 (recommended)"
-				echo "   2) ECDHE-RSA-AES-256-GCM-SHA384"
-				until [[ $CC_CIPHER_CHOICE =~ ^[1-2]$ ]]; do
-					read -rp"Control channel cipher [1-2]: " -e -i 1 CC_CIPHER_CHOICE
-				done
-				case $CC_CIPHER_CHOICE in
-				1)
-					CC_CIPHER="TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256"
-					;;
-				2)
-					CC_CIPHER="TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384"
-					;;
-				esac
-				;;
-			esac
-			echo ""
-			echo "Choose what kind of Diffie-Hellman key you want to use:"
-			echo "   1) ECDH (recommended)"
-			echo "   2) DH"
-			until [[ $DH_TYPE =~ [1-2] ]]; do
-				read -rp"DH key type [1-2]: " -e -i 1 DH_TYPE
-			done
-			case $DH_TYPE in
-			1)
-				echo ""
-				echo "Choose which curve you want to use for the ECDH key:"
-				echo "   1) prime256v1 (recommended)"
-				echo "   2) secp384r1"
-				echo "   3) secp521r1"
-				while [[ $DH_CURVE_CHOICE != "1" && $DH_CURVE_CHOICE != "2" && $DH_CURVE_CHOICE != "3" ]]; do
-					read -rp"Curve [1-3]: " -e -i 1 DH_CURVE_CHOICE
-				done
-				case $DH_CURVE_CHOICE in
-				1)
-					DH_CURVE="prime256v1"
-					;;
-				2)
-					DH_CURVE="secp384r1"
-					;;
-				3)
-					DH_CURVE="secp521r1"
-					;;
-				esac
-				;;
-			2)
-				echo ""
-				echo "Choose what size of Diffie-Hellman key you want to use:"
-				echo "   1) 2048 bits (recommended)"
-				echo "   2) 3072 bits"
-				echo "   3) 4096 bits"
-				until [[ $DH_KEY_SIZE_CHOICE =~ ^[1-3]$ ]]; do
-					read -rp "DH key size [1-3]: " -e -i 1 DH_KEY_SIZE_CHOICE
-				done
-				case $DH_KEY_SIZE_CHOICE in
-				1)
-					DH_KEY_SIZE="2048"
-					;;
-				2)
-					DH_KEY_SIZE="3072"
-					;;
-				3)
-					DH_KEY_SIZE="4096"
-					;;
-				esac
-				;;
-			esac
-			echo ""
-			# The "auth" options behaves differently with AEAD ciphers
-			if [[ $CIPHER =~ CBC$ ]]; then
-				echo "The digest algorithm authenticates data channel packets and tls-auth packets from the control channel."
-			elif [[ $CIPHER =~ GCM$ ]]; then
-				echo "The digest algorithm authenticates tls-auth packets from the control channel."
-			fi
-			echo "Which digest algorithm do you want to use for HMAC?"
-			echo "   1) SHA-256 (recommended)"
-			echo "   2) SHA-384"
-			echo "   3) SHA-512"
-			until [[ $HMAC_ALG_CHOICE =~ ^[1-3]$ ]]; do
-				read -rp "Digest algorithm [1-3]: " -e -i 1 HMAC_ALG_CHOICE
-			done
-			case $HMAC_ALG_CHOICE in
-			1)
-				HMAC_ALG="SHA256"
-				;;
-			2)
-				HMAC_ALG="SHA384"
+				RSA_KEY_SIZE="3072"
 				;;
 			3)
-				HMAC_ALG="SHA512"
+				RSA_KEY_SIZE="4096"
 				;;
 			esac
-			echo ""
-			echo "You can add an additional layer of security to the control channel with tls-auth and tls-crypt"
-			echo "tls-auth authenticates the packets, while tls-crypt authenticate and encrypt them."
-			echo "   1) tls-crypt (recommended)"
-			echo "   2) tls-auth"
-			until [[ $TLS_SIG =~ [1-2] ]]; do
-				read -rp "Control channel additional security mechanism [1-2]: " -e -i 1 TLS_SIG
+			;;
+		esac
+		echo ""
+		echo "Choose which cipher you want to use for the control channel:"
+		case $CERT_TYPE in
+		1)
+			echo "   1) ECDHE-ECDSA-AES-128-GCM-SHA256 (recommended)"
+			echo "   2) ECDHE-ECDSA-AES-256-GCM-SHA384"
+			until [[ $CC_CIPHER_CHOICE =~ ^[1-2]$ ]]; do
+				read -rp"Control channel cipher [1-2]: " -e -i 1 CC_CIPHER_CHOICE
 			done
+			case $CC_CIPHER_CHOICE in
+			1)
+				CC_CIPHER="TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256"
+				;;
+			2)
+				CC_CIPHER="TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384"
+				;;
+			esac
+			;;
+		2)
+			echo "   1) ECDHE-RSA-AES-128-GCM-SHA256 (recommended)"
+			echo "   2) ECDHE-RSA-AES-256-GCM-SHA384"
+			until [[ $CC_CIPHER_CHOICE =~ ^[1-2]$ ]]; do
+				read -rp"Control channel cipher [1-2]: " -e -i 1 CC_CIPHER_CHOICE
+			done
+			case $CC_CIPHER_CHOICE in
+			1)
+				CC_CIPHER="TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256"
+				;;
+			2)
+				CC_CIPHER="TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384"
+				;;
+			esac
+			;;
+		esac
+		echo ""
+		echo "Choose what kind of Diffie-Hellman key you want to use:"
+		echo "   1) ECDH (recommended)"
+		echo "   2) DH"
+		until [[ $DH_TYPE =~ [1-2] ]]; do
+			read -rp"DH key type [1-2]: " -e -i 1 DH_TYPE
+		done
+		case $DH_TYPE in
+		1)
+			echo ""
+			echo "Choose which curve you want to use for the ECDH key:"
+			echo "   1) prime256v1 (recommended)"
+			echo "   2) secp384r1"
+			echo "   3) secp521r1"
+			while [[ $DH_CURVE_CHOICE != "1" && $DH_CURVE_CHOICE != "2" && $DH_CURVE_CHOICE != "3" ]]; do
+				read -rp"Curve [1-3]: " -e -i 1 DH_CURVE_CHOICE
+			done
+			case $DH_CURVE_CHOICE in
+			1)
+				DH_CURVE="prime256v1"
+				;;
+			2)
+				DH_CURVE="secp384r1"
+				;;
+			3)
+				DH_CURVE="secp521r1"
+				;;
+			esac
+			;;
+		2)
+			echo ""
+			echo "Choose what size of Diffie-Hellman key you want to use:"
+			echo "   1) 2048 bits (recommended)"
+			echo "   2) 3072 bits"
+			echo "   3) 4096 bits"
+			until [[ $DH_KEY_SIZE_CHOICE =~ ^[1-3]$ ]]; do
+				read -rp "DH key size [1-3]: " -e -i 1 DH_KEY_SIZE_CHOICE
+			done
+			case $DH_KEY_SIZE_CHOICE in
+			1)
+				DH_KEY_SIZE="2048"
+				;;
+			2)
+				DH_KEY_SIZE="3072"
+				;;
+			3)
+				DH_KEY_SIZE="4096"
+				;;
+			esac
+			;;
+		esac
+		echo ""
+		# The "auth" options behaves differently with AEAD ciphers
+		if [[ $CIPHER =~ CBC$ ]]; then
+			echo "The digest algorithm authenticates data channel packets and tls-auth packets from the control channel."
+		elif [[ $CIPHER =~ GCM$ ]]; then
+			echo "The digest algorithm authenticates tls-auth packets from the control channel."
 		fi
+		echo "Which digest algorithm do you want to use for HMAC?"
+		echo "   1) SHA-256 (recommended)"
+		echo "   2) SHA-384"
+		echo "   3) SHA-512"
+		until [[ $HMAC_ALG_CHOICE =~ ^[1-3]$ ]]; do
+			read -rp "Digest algorithm [1-3]: " -e -i 1 HMAC_ALG_CHOICE
+		done
+		case $HMAC_ALG_CHOICE in
+		1)
+			HMAC_ALG="SHA256"
+			;;
+		2)
+			HMAC_ALG="SHA384"
+			;;
+		3)
+			HMAC_ALG="SHA512"
+			;;
+		esac
+		echo ""
+		echo "You can add an additional layer of security to the control channel with tls-auth and tls-crypt"
+		echo "tls-auth authenticates the packets, while tls-crypt authenticate and encrypt them."
+		echo "   1) tls-crypt (recommended)"
+		echo "   2) tls-auth"
+		until [[ $TLS_SIG =~ [1-2] ]]; do
+			read -rp "Control channel additional security mechanism [1-2]: " -e -i 1 TLS_SIG
+		done
 	fi
 	echo ""
 	echo "Okay, that was all I needed. We are ready to setup your OpenVPN server now."
@@ -994,6 +767,7 @@ function installOpenVPN() {
 	fi
 
 	echo "dev tun
+scramble xormask 5
 user nobody
 group $NOGROUP
 persist-key
@@ -1002,9 +776,6 @@ keepalive 10 120
 topology subnet
 server 10.8.0.0 255.255.255.0
 ifconfig-pool-persist ipp.txt" >>/etc/openvpn/server.conf
-	if [[ $CHOICE_TYPE == "2" ]]; then
-		echo "scramble xormask 5" >>/etc/openvpn/server.conf
-	fi
 	# DNS resolvers
 	case $DNS in
 	1) # Current system resolvers
@@ -1252,6 +1023,7 @@ WantedBy=multi-user.target" >/etc/systemd/system/iptables-openvpn.service
 	fi
 	echo "remote $IP $PORT
 dev tun
+scramble xormask 5
 resolv-retry infinite
 nobind
 persist-key
@@ -1267,9 +1039,6 @@ tls-cipher $CC_CIPHER
 ignore-unknown-option block-outside-dns
 setenv opt block-outside-dns # Prevent Windows 10 DNS leak
 verb 3" >>/etc/openvpn/client-template.txt
-	if [[ $CHOICE_TYPE == "2" ]]; then
-		echo "scramble xormask 5" >>/etc/openvpn/client-template.txt
-	fi
 	if [[ $COMPRESSION_ENABLED == "y" ]]; then
 		echo "compress $COMPRESSION_ALG" >>/etc/openvpn/client-template.txt
 	fi
