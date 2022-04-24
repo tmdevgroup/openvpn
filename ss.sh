@@ -703,19 +703,19 @@ Set_config_port(){
 ${Purple}|————————————————————————————————————|${Font_default}
 ${Purple}|———————— ${Red}Порт сгенерирован ${Purple}—————————${Font_default}${Purple}|${Font_default}	
 ${Purple}|————————————————————————————————————|${Font_default} "
-	ssr_port=$(shuf -i 1000-9999 -n 1)
+	ssr_port=$(shuf -i 100-999 -n 1)
 	while true
 	do
 	echo $((${ssr_port}+0)) &>/dev/null
 	if [[ $? == 0 ]]; then
-		if [[ ${ssr_port} -ge 1 ]] && [[ ${ssr_port} -le 9999 ]]; then
+		if [[ ${ssr_port} -ge 1 ]] && [[ ${ssr_port} -le 999 ]]; then
 		echo -e ${Separator_1} && echo -e "	  ${Red} Порт: : ${Ocean}${ssr_port}${Font_default}" && echo -e ${Separator_1}
 			break
 		else
-			echo -e "${Error} Введите корректный порт(1-9999)"
+			echo -e "${Error} Введите корректный порт(1-999)"
 		fi
 	else
-		echo -e "${Error} Введите корректный порт(1-9999)"
+		echo -e "${Error} Введите корректный порт(1-999)"
 	fi
 	done
 }
@@ -812,13 +812,13 @@ Set_config_protocol_param(){
 	[[ -z "$ssr_protocol_param" ]] && ssr_protocol_param="" && break
 	echo $((${ssr_protocol_param}+0)) &>/dev/null
 	if [[ $? == 0 ]]; then
-		if [[ ${ssr_protocol_param} -ge 1 ]] && [[ ${ssr_protocol_param} -le 9999 ]]; then
+		if [[ ${ssr_protocol_param} -ge 1 ]] && [[ ${ssr_protocol_param} -le 999 ]]; then
 			break
 		else
-			echo -e "${Error} Введите корректный номер(1-9999)"
+			echo -e "${Error} Введите корректный номер(1-999)"
 		fi
 	else
-		echo -e "${Error} Введите корректный номер(1-9999)"
+		echo -e "${Error} Введите корректный номер(1-999)"
 	fi
 	done
 }
@@ -831,14 +831,14 @@ Set_config_protocol_param_slow(){
 	[[ -z "$ssr_protocol_param" ]] && ssr_protocol_param="" && echo && break
 	echo $((${ssr_protocol_param}+0)) &>/dev/null
 	if [[ $? == 0 ]]; then
-		if [[ ${ssr_protocol_param} -ge 1 ]] && [[ ${ssr_protocol_param} -le 9999 ]]; then
+		if [[ ${ssr_protocol_param} -ge 1 ]] && [[ ${ssr_protocol_param} -le 999 ]]; then
 			echo && echo -e ${Separator_1} && echo -e "	Лимит устройств : ${Green}${ssr_protocol_param}${Font_default}" && echo ${Separator_1} && echo
 			break
 		else
-			echo -e "${Error} Введите корректный номер(1-9999)"
+			echo -e "${Error} Введите корректный номер(1-999)"
 		fi
 	else
-		echo -e "${Error} Введите корректный номер(1-9999)"
+		echo -e "${Error} Введите корректный номер(1-999)"
 	fi
 	done
 }
@@ -2212,8 +2212,6 @@ else
 	echo -e " 
 ${Purple}|————————————————————————————————————|${Font_default}
 ${Purple}|${Font_default}${Purple}———————————${Font_default} Информация ${Purple}—————————————${Font_default}${Purple}|${Font_default}
-${Purple}|${Font_default}${Red}Разработчик:${Yellow} PlayBoyXXX ${Purple}            ${Font_default}${Purple}|${Font_default}
-${Purple}|${Font_default}${Red}Telegram:${Yellow} @phonk_4_life ${Purple}            ${Font_default}${Purple}|${Font_default}
 ${Purple}|${Font_default}${Red}Дата: ${Yellow}[$(date +"%d-%m-%Y")]${Purple}                  ${Font_default}${Purple}|${Font_default}
 ${Purple}|${Font_default}$(menu_status)${Purple}        ${Font_default}${Purple}|${Font_default}
 ${Purple}|${Font_default}${Red}Версия скрипта: ${Yellow}v${sh_ver}${Font_default}                ${Purple}|${Font_default}
