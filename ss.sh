@@ -25,15 +25,15 @@ Server_Speeder_file="/serverspeeder/bin/serverSpeeder.sh"
 LotServer_file="/appex/bin/serverSpeeder.sh"
 BBR_file="${file}/bbr.sh"
 jq_file="${ssr_folder}/jq"
-tgid="996348374"  # ID чата для автобэкапа (Необходим доступ к сообщениям)
-tg2id="996348374" # ID чата диллерской группы для отправки ключей
-admls="996348374"	   # ID Админа
-bot_api="5229915577:AAGQjAQWbiUh39WKAp2tKlnaiyodUvEMpuQ" # Токен бота 
+tgid=""  # ID чата для автобэкапа (Необходим доступ к сообщениям)
+tg2id="" # ID чата диллерской группы для отправки ключей
+admls=""	   # ID Админа
+bot_api="" # Токен бота 
 backup_serv_id="$(cat ${config_user_api_file}|grep "SERVER_PUB_ADDR = "|awk -F "[']" '{print $2}')" # Получение домена сервера из конфига
-Deal1="Rouz"
-Deal2="Huyplet"
-Deal3="Damir"
-Deal4="NoUsed"
+Deal1="M"
+Deal2="S"
+Deal3=""
+Deal4=""
 Green="\033[32m" && Red="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Purple="\033[35m" && Yellow="\033[33m" && Font_default="\033[0m" && Blue='\033[34m' && Ocean='\033[36m'
 Info="${Green}[Информация]${Font_default}"
 Error="${Red}[Ошибка]${Font_default}"
